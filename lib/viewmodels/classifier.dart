@@ -23,6 +23,11 @@ class Classifier {
   List<List<int>> _outputShapes;
   List<TfLiteType> _outputTypes;
 
+  Classifier({Interpreter interpreter, List<String> labels,}) {
+    loadModel(interpreter);
+    loadLabels(labels);
+  }
+
   Future<void> loadModel(Interpreter interpreter) async {
     try {
       _interpreter = interpreter ?? await Interpreter.fromAsset('$_modelFileName');
