@@ -8,8 +8,8 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
 class Classifier {
-  static const String _modelFileName = 'detect.tflite';
-  static const String _labelFileName = 'labelmap.txt';
+  static const String _modelFileName = 'tflite/detect.tflite';
+  static const String _labelFileName = 'tflite/labelmap.txt';
   static const int _inputSize = 300;
   static const double _threshold = 0.6;
   static const int _results = 10;
@@ -30,7 +30,10 @@ class Classifier {
 
   Future<void> loadModel(Interpreter interpreter) async {
     try {
-      _interpreter = interpreter ?? await Interpreter.fromAsset('$_modelFileName');
+      _interpreter = interpreter ?? await Interpreter.fromAsset(
+        '$_modelFileName',
+        options: InterpreterOptions()..threads = 4,
+      );
       List<Tensor> outputTensors = _interpreter.getOutputTensors();
       _outputShapes = [];
       _outputTypes = [];
@@ -52,7 +55,7 @@ class Classifier {
   }
 
   TensorImage preprocess(TensorImage image) {
-    final padSize = max(image.height, image.width);
+    final int padSize = max(image.height, image.width);
     _processor ??= ImageProcessorBuilder()
       .add(ResizeWithCropOrPadOp(padSize, padSize),)
       .add(ResizeOp(_inputSize, _inputSize, ResizeMethod.BILINEAR),)
